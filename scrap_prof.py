@@ -23,11 +23,14 @@ def get_prof_list():
     return profs_list
 
 def get_lattes(text):
-    cv_list = os.listdir("CVs\\")
-    if 'lattes.cnpq.br' in text:
-        file = text.split('/')[-1]+'.html'
-        if file not in cv_list:
-            scrap_lattes.solve_captcha(text)
+    try:
+        cv_list = os.listdir("CVs\\")
+        if 'lattes.cnpq.br' in text:
+            file = text.split('/')[-1]+'.html'
+            if file not in cv_list:
+                scrap_lattes.solve_captcha(text)
+    except:
+        pass
     return text
 
 def get_details(prof):
