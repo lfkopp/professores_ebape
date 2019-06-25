@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-
+import scrap_lattes
+import os
 BASE_URL = 'https://ebape.fgv.br'
 urls = ['/corpo-docente', '/en/faculty', '/es/cuerpo-docente']
 col = ["url","position","prof", "prof_link", "prof_link_short","name","updated_at","programs","image","contact","links","body"]
@@ -21,6 +22,14 @@ def get_prof_list():
                 profs_list.append((url,position,prof.text.strip(), prof.find("a").get("href"), prof.find("a").get("href").split("/")[-1]))
     return profs_list
 
+def get_lattes(text):
+    cv_list = os.listdir("CVs\\")
+    if 'lattes.cnpq.br' in text:
+        file = text.split('/')[-1]+'.html'
+        if file not in cv_list:
+            scrap_lattes.solve_captcha(text)
+    return text
+
 def get_details(prof):
     try:
         content = requests.get(BASE_URL + prof[3]).content
@@ -29,7 +38,7 @@ def get_details(prof):
         updated_at = soup.find("div", {"class": "updated-at"}).text.strip()
         node_content = soup.find("div", {"class": "node-content"})
         try:
-            links = '\n'.join([link.find("a").get("href") for link in node_content.find_all("div", {"class": "field-type-link-field"})])
+            links = '\n'.join([get_lattes(link.find("a").get("href")) for link in node_content.find_all("div", {"class": "field-type-link-field"})])
         except:
             links = ''
         image = node_content.find("img").get("src")
